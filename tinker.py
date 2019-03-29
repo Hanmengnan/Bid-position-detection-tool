@@ -1,10 +1,7 @@
 from tkinter import *
 from time import sleep
 from threading import Thread
-import requests
-from json import loads
-from lxml import etree
-from fun import rank
+from companyRank import rank
 from Mongotest import rankDB
 
 class baidu():

@@ -1,5 +1,4 @@
-import pymongo
-from fun import rank
+from companyRank import rank
 from pymongo import MongoClient
 import datetime
 class rankDB():
