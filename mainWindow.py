@@ -1,9 +1,13 @@
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from companyRank import rank
 from threading import Thread
 from time import sleep
+
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+
+from companyRank import rank
+
+from confirmSite import search
 class window(QWidget):
     def __init__(self,height,width):
         super(window,self).__init__()
@@ -42,19 +46,69 @@ class mainWindow(window):
 
 
 class stateWindowShow(window):
+    text=[]
+    itemState=[]
     def __init__(self,lenght,width):
         window.__init__(self,lenght,width)
     def stateShow(self):
+        vbox=QVBoxLayout()
+        self.item=QLineEdit()
+        vbox.addWidget(self.item)
+        for i in range(5):
+            lableA = QLabel("公司:", self)
+            line = QLineEdit(self)
+            lableB = QLabel("状态:未知", self)
+            self.text.append(line)
+            self.itemState.append(lableB)
+            hbox = QHBoxLayout()
+            tempWidge = QWidget()
+            hbox.addWidget(lableA)
+            hbox.addWidget(line)
+            hbox.addWidget(lableB)
+            tempWidge.setLayout(hbox)
+            vbox.addWidget(tempWidge)
+        buttonStart = QPushButton("检测", self)
+        buttonStart.move(50, 50)
+        buttonMain = QPushButton("返回", self)
+        buttonMain.move(150, 50)
+        buttonMain.clicked.connect(self.toMain)
+        buttonStart.clicked.connect(self.state)
+
+        boxWidge = QWidget()
+
+        boxButton = QHBoxLayout()
+
+        boxButton.addWidget(buttonStart)
+        boxButton.addWidget(buttonMain)
+
+        boxWidge.setLayout(boxButton)
+
+        vbox.addWidget(boxWidge)
+        self.setLayout(vbox)
         self.show()
+    def state(self):
+        keyword=self.item.text()
+        result=search(keyword)
+        index=0
+        for i in range(5):
+            self.text[i].setText("")
+        for item in result:
+            self.text[index].setText(item)
+            if result[item]==False:
+                self.itemState[index].setText("状态:良好")
+            else:
+                self.itemState[index].setText("状态:故障")
+            index+=1
     def toMain(self):
+        self.close()
         self.tempMain= mainWindow()
         self.tempMain.mainShow()
+
 
 class rankWindowShow(window):
     text=[]
     rankNum=[]
     alive=[]
-
     def __init__(self,lenght,width):
         window.__init__(self,lenght,width)
 
@@ -76,7 +130,7 @@ class rankWindowShow(window):
 
         boxButton.addWidget(buttonStart)
         boxButton.addWidget(buttonMain)
-        #boxButton.addWidget(buttonEnd)
+
         boxWidge.setLayout(boxButton)
 
         tipLine=QLabel("              请输入公司名称或网址：",self)
