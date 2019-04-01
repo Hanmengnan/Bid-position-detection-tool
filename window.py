@@ -3,7 +3,11 @@ from time import sleep
 from threading import Thread
 from companyRank import rank
 from Mongotest import rankDB
-
+from PyQt5.QtWidgets import *
+import sys
+# class window():
+#     def __init__(self):
+#         app=QAppliaction
 class baidu():
     def __init__(self):
         self.top = Tk()
