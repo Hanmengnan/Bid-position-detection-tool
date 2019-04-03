@@ -1,5 +1,6 @@
 from json import loads
 from fun import *
+from lxml import etree
 def search(keyword):
     comState={}
     html=fun(keyword)

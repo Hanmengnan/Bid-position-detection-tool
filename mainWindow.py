@@ -2,12 +2,17 @@ import sys
 from threading import Thread
 from time import sleep
 
+import requests
 from PyQt5.QtGui import *
+from PyQt5.QtSql import QSqlTableModel
 from PyQt5.QtWidgets import *
-
+from PyQt5.uic.properties import QtCore
+from lxml import etree
+import PyQt5.QtCore
 from companyRank import rank
-
 from confirmSite import search
+
+
 class window(QWidget):
     def __init__(self,height,width):
         super(window,self).__init__()
@@ -22,7 +27,7 @@ class window(QWidget):
         self.setWindowIcon(QIcon("icon.jpg"))
 
 class mainWindow(window):
-    def __init__(self,lenght=400,width=200):
+    def __init__(self,lenght=400,width=300):
         window.__init__(self,lenght,width)
     def mainShow(self):
         buttonRank=QPushButton("竞价排名",self)
@@ -31,8 +36,12 @@ class mainWindow(window):
         buttonState=QPushButton("网站状态",self)
         buttonState.resize(340,60)
         buttonState.move(30,110)
+        button58 = QPushButton("58同城", self)
+        button58.resize(340, 60)
+        button58.move(30, 190)
         buttonRank.clicked.connect(self.toRank)
         buttonState.clicked.connect(self.toState)
+        button58.clicked.connect(self.to58)
         self.show()
 
     def toRank(self):
@@ -43,8 +52,10 @@ class mainWindow(window):
         self.close()
         self.statePage=stateWindowShow(400,400)
         self.statePage.stateShow()
-
-
+    def to58(self):
+        self.close()
+        self._58Page = _58WindowShow(400, 600)
+        self._58Page._58Show()
 class stateWindowShow(window):
     text=[]
     itemState=[]
@@ -89,6 +100,7 @@ class stateWindowShow(window):
     def state(self):
         keyword=self.item.text()
         result=search(keyword)
+        print(result)
         index=0
         for i in range(5):
             self.text[i].setText("")
@@ -198,6 +210,104 @@ class rankWindowShow(window):
         for i in range(15):
             self.alive[i] = False
 
+class _58WindowShow(window):
+
+    def __init__(self,lenght,width):
+        window.__init__(self, lenght, width)
+
+    def _58rank(self,keyword):
+        headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36"}
+
+        url = ("https://bj.58.com/huangyezonghe/?key=%s&cmcskey=%s&final=1&jump=1&specialtype=gls&classpolicy=huangyezonghe_Bs" % (keyword, keyword))  # 网址
+        html = requests.get(url, headers=headers, timeout=(3, 7)).text
+        s = requests.session()
+        s.keep_alive = False  # 防止源代码过长，超时导致SSL错误
+        html = etree.HTML(html)
+        jingpinBox = html.xpath("//*[@class='jingpin']/parent::*/parent::*/p[1]/a")
+        dingzhiBox = html.xpath("//*[@class='ico ding']/parent::*/parent::*/p[1]/a")
+        totalBox = html.xpath("//*[@class='seller']/a")
+        jingpin = []
+        dingzhi = []
+        other = []
+        for i in jingpinBox:
+            if i != None:
+                jingpin.append(i.text)
+        for i in dingzhiBox:
+            if i != None:
+                dingzhi.append(i.text)
+        for i in range(len(totalBox) - len(dingzhiBox) - len(jingpinBox)):
+            if i != None:
+                other.append(totalBox[len(dingzhiBox) + len(jingpinBox) - 1 + i].text)
+        return jingpin,dingzhi,other
+    def toMain(self):
+        self.close()
+        self.tempMain= mainWindow()
+        self.tempMain.mainShow()
+    def _58Show(self):
+
+        operateLayout=QHBoxLayout()
+        self.mainLayout=QVBoxLayout()
+        opbox=QWidget()
+        textWidge=QWidget()
+        textPart=QHBoxLayout()
+        self.lineText=QLineEdit()
+        tipText=QLabel("请输入关键词：")
+        textButton=QPushButton("生成")
+        textButton.clicked.connect(self._58showRank)
+        textPart.addWidget(tipText)
+        textPart.addWidget(self.lineText)
+        textPart.addWidget(textButton)
+        textWidge.setLayout(textPart)
+        leaveButton = QPushButton("返回")
+        prevButton=QPushButton("前一页")
+        nextButton=QPushButton("后一页")
+        switchPageButton=QPushButton("GO")
+        switchPage=QLabel("转到第")
+        page=QLabel("页")
+        leaveButton.clicked.connect(self.toMain)
+        switchPageLineText=QLineEdit()
+        switchPageLineText.setFixedWidth(60)
+        operateLayout.addWidget(leaveButton)
+        operateLayout.addWidget(prevButton)
+        operateLayout.addWidget(nextButton)
+        operateLayout.addWidget(switchPage)
+        operateLayout.addWidget(switchPageLineText)
+        operateLayout.addWidget(page)
+        operateLayout.addWidget(switchPageButton)
+        _58formModle=QStandardItemModel(30,2)
+
+        _58formModle.setHorizontalHeaderLabels(["类型","公司名称"])
+
+        self._58form=QTableView()
+        self._58form.setEditTriggers(QTableView.NoEditTriggers)
+        self._58form.horizontalHeader().setStretchLastSection(True)
+        self._58form.setColumnWidth(0, 40)
+        self._58form.setModel(_58formModle)
+
+        opbox.setLayout(operateLayout)
+        self.mainLayout.addWidget(textWidge)
+        self.mainLayout.addWidget(self._58form)
+        self.mainLayout.addWidget(opbox)
+        self.setLayout(self.mainLayout)
+        self.show()
+    def _58showRank(self):
+        text=self.lineText.text()
+        jingpin,dingzhi,other=self._58rank(text)
+        Model=QStandardItemModel(len(jingpin),2)
+        Model.setHorizontalHeaderLabels(["类型", "公司名称"])
+        lenght=len(jingpin)
+        for row in range(lenght):
+            Model.setItem(row, 0, QStandardItem("精品广告"))
+            Model.setItem(row, 1, QStandardItem(jingpin[row]))
+        lenght=len(dingzhi)
+        for row in range(lenght):
+            Model.setItem(row+len(jingpin), 0, QStandardItem("顶置广告"))
+            Model.setItem(row+len(jingpin), 1, QStandardItem(dingzhi[row]))
+        lenght=len(other)
+        for row in range(lenght):
+            Model.setItem(row+len(jingpin)+len(dingzhi), 0, QStandardItem("普通广告"))
+            Model.setItem(row+len(jingpin)+len(dingzhi), 1, QStandardItem(other[row]))
+        self._58form.setModel(Model)
 
 if __name__ == "__main__":
     app=QApplication(sys.argv)
