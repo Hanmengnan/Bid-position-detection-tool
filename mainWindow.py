@@ -23,7 +23,7 @@ class window(QWidget):
         center= QDesktopWidget().availableGeometry().center()
         frame.moveCenter(center)
         self.move(frame.topLeft())
-        self.setWindowTitle("BaiduCompete Demo")
+        self.setWindowTitle("Compete Demo")
         self.setWindowIcon(QIcon("icon.jpg"))
 
 class mainWindow(window):
@@ -99,18 +99,20 @@ class stateWindowShow(window):
         self.show()
     def state(self):
         keyword=self.item.text()
-        result=search(keyword)
-        print(result)
-        index=0
-        for i in range(5):
-            self.text[i].setText("")
-        for item in result:
-            self.text[index].setText(item)
-            if result[item]==False:
-                self.itemState[index].setText("状态:良好")
-            else:
-                self.itemState[index].setText("状态:故障")
-            index+=1
+        try:
+            result=search(keyword)
+            index=0
+            for i in range(5):
+                self.text[i].setText("")
+            for item in result:
+                self.text[index].setText(item)
+                if result[item]==False:
+                    self.itemState[index].setText("状态:良好")
+                else:
+                    self.itemState[index].setText("状态:故障")
+                index+=1
+        except:
+            pass
     def toMain(self):
         self.close()
         self.tempMain= mainWindow()
