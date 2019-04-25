@@ -16,4 +16,4 @@ def search(keyword):
             comState[loads(company)['title']] = False
     return comState
 if __name__=="__main__":
-    print(search(1))
+    search(1)

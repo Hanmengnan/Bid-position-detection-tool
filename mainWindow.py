@@ -4,11 +4,8 @@ from time import sleep
 
 import requests
 from PyQt5.QtGui import *
-from PyQt5.QtSql import QSqlTableModel
 from PyQt5.QtWidgets import *
-from PyQt5.uic.properties import QtCore
 from lxml import etree
-import PyQt5.QtCore
 from companyRank import rank
 from confirmSite import search
 
@@ -127,30 +124,40 @@ class rankWindowShow(window):
         window.__init__(self,lenght,width)
 
     def rankShow(self):
-        buttonStart=QPushButton("开始",self)
-        buttonStart.move(50,50)
+        buttonStart=QPushButton("生成排名",self)
         #buttonEnd=QPushButton("停止",self)
         #buttonEnd.move(250,50)
-        buttonMain = QPushButton("返回", self)
-        buttonMain.move(150,50)
+        buttonMain = QPushButton("返回主界面", self)
+        buttonchange = QPushButton("切换到360排名", self)
+        #两个按钮
         buttonMain.clicked.connect(self.toMain)
         buttonStart.clicked.connect(self.start)
 
         vbox=QVBoxLayout()
-        vbox.setSpacing(0)
+        #主布局方式
         boxWidge=QWidget()
-
+        #主布局
         boxButton=QHBoxLayout()
-
+        #按钮布局
         boxButton.addWidget(buttonStart)
+        boxButton.addWidget(buttonchange)
         boxButton.addWidget(buttonMain)
 
         boxWidge.setLayout(boxButton)
+        #设置按钮布局
 
-        tipLine=QLabel("              请输入公司名称或网址：",self)
-        self.textLine=QLineEdit(self)
-        vbox.addWidget(tipLine)
-        vbox.addWidget(self.textLine)
+        tipAndButton=QWidget()
+        tipBox=QHBoxLayout()
+        #输入框布局及布局方式
+
+        tipLine=QLabel("公司名称或网址:",self)
+        #提示信息
+        self.textLine = QLineEdit(self)
+        #输入框
+        tipBox.addWidget(tipLine)
+        tipBox.addWidget(self.textLine)
+        tipAndButton.setLayout(tipBox)
+        vbox.addWidget(tipAndButton)
 
         for i in range(15):
             lableA=QLabel("关键词:",self)

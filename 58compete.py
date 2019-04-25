@@ -24,6 +24,4 @@ def fun(keyword):
     for i in range(len(totalBox)-len(dingzhiBox)-len(jingpinBox)):
         if i!=None:
             other.append(totalBox[len(dingzhiBox)+len(jingpinBox)-1+i].text)
-    print(other)
-    print(dingzhi)
-    print(jingpin)
+
