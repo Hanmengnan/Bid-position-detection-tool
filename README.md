@@ -1,3 +1,3 @@
-# AD_Compete
-基于PyQt5的多网站竞价排名工具
-持续更新中
+# Bid position detection tool
+
+竞价排名监测桌面端工具，前端使用PyQt5实现。
